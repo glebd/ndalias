@@ -353,7 +353,7 @@
 	@abstract Tests if all NDAliases in the collection (ex: NSArray or NSSet) can be resolved.
 	@discussion Returns YES if and only if each alias can be resolved, returns NO otherwise.
   */
-+ (BOOL)isAliasCollectionResolvable:(NSObject<NSFastEnumeration>*)aCollection;
++ (BOOL)isAliasCollectionResolvable:(id)aCollection;
 
 /*!
 	@method isAliasCollection:equalToAliasCollection:

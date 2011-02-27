@@ -562,7 +562,7 @@
 /*
 	isAliasCollectionResolvable:
  */
-+ (BOOL)isAliasCollectionResolvable:(NSObject<NSFastEnumeration>*)aCollection
++ (BOOL)isAliasCollectionResolvable:(id)aCollection
 {
 	BOOL resolvable = NO;
 	
