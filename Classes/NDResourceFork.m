@@ -1,8 +1,8 @@
 /*
 	NDResourceFork.h category
 
-	Created by Nathan Day on 05.12.01 under a MIT-style license. 
-	Copyright (c) 2008-2009 Nathan Day
+	Created by Nathan Day on 05.12.01 under a MIT-style license.
+	Copyright (c) 2008-2012 Nathan Day
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,49 @@
 #import "NDResourceFork.h"
 #import "NSString+NDCarbonUtilities.h"
 
-NSData * dataFromResourceHandle( Handle aResourceHandle );
-BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSString * aName, ResID anId, BOOL (*aFunction)(Handle,ResType,NSString*,ResID,void*), void * aContext );
+/*
+ * dataFromResourceHandle()
+ */
+static NSData * dataFromResourceHandle( Handle aResourceHandle )
+{
+	NSData		* theData = nil;
+	if( aResourceHandle )
+	{
+		theData = [NSData dataWithBytes:*aResourceHandle length:GetHandleSize( aResourceHandle )];
+	}
+
+	return theData;
+}
+
+static BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSString * aName, ResID anId, BOOL (*aFunction)(Handle,ResType,NSString*,ResID,void*), void * aContext )
+{
+	Handle			theResHandle = NULL;
+	ResFileRefNum	thePreviousRefNum;
+	Str255			thePName;
+	BOOL			theResult = NO;
+
+	thePreviousRefNum = CurResFile();	// save current resource
+
+	UseResFile( afileRef );    		// set this resource to be current
+
+	if( noErr ==  ResError( ) && ((aName && [aName getPascalString:(StringPtr)thePName length:sizeof(thePName)]) || !aName ))
+	{
+		if( aName && [aName getPascalString:(StringPtr)thePName length:sizeof(thePName)] )
+			theResHandle = Get1NamedResource( aType, thePName );
+		else if( !aName )
+			theResHandle = Get1Resource( aType, anId );
+
+		if( noErr == ResError() )
+				theResult = aFunction( theResHandle, aType, aName, anId, aContext  );
+
+		if ( theResHandle )
+			ReleaseResource( theResHandle );
+	}
+
+	UseResFile( thePreviousRefNum );     		// reset back to resource previously set
+
+	return theResult;
+}
 
 /*
  * class interface ResourceTypeEnumerator : NSEnumerator
@@ -38,7 +79,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 	SInt16	numberOfTypes,
 				typeIndex;
 }
-+ (id)resourceTypeEnumerator;
++ (instancetype)resourceTypeEnumerator;
 @end
 
 /*
@@ -49,7 +90,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
  * resourceForkForReadingAtURL:
  */
-+ (id)resourceForkForReadingAtURL:(NSURL *)aURL
++ (instancetype)resourceForkForReadingAtURL:(NSURL *)aURL
 {
 	return [[[self alloc] initForReadingAtURL:aURL] autorelease];
 }
@@ -57,7 +98,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
  * resourceForkForWritingAtURL:
  */
-+ (id)resourceForkForWritingAtURL:(NSURL *)aURL
++ (instancetype)resourceForkForWritingAtURL:(NSURL *)aURL
 {
 	return [[[self alloc] initForWritingAtURL:aURL] autorelease];
 }
@@ -65,7 +106,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
  * resourceForkForReadingAtPath:
  */
-+ (id)resourceForkForReadingAtPath:(NSString *)aPath
++ (instancetype)resourceForkForReadingAtPath:(NSString *)aPath
 {
 	return [[[self alloc] initForReadingAtPath:aPath] autorelease];
 }
@@ -73,7 +114,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
  * resourceForkForWritingAtPath:
  */
-+ (id)resourceForkForWritingAtPath:(NSString *)aPath
++ (instancetype)resourceForkForWritingAtPath:(NSString *)aPath
 {
 	return [[[self alloc] initForWritingAtPath:aPath] autorelease];
 }
@@ -81,7 +122,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
 	- initForReadingAtURL:
  */
-- (id)initForReadingAtURL:(NSURL *)aURL
+- (instancetype)initForReadingAtURL:(NSURL *)aURL
 {
 	return [self initForPermission:fsRdPerm atURL:aURL];
 }
@@ -89,7 +130,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
 	- initForWritingAtURL:
  */
-- (id)initForWritingAtURL:(NSURL *)aURL
+- (instancetype)initForWritingAtURL:(NSURL *)aURL
 {
 	return [self initForPermission:fsWrPerm atURL:aURL];
 }
@@ -97,7 +138,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
 	- initForPermission:AtURL:
  */
-- (id)initForPermission:(char)aPermission atURL:(NSURL *)aURL
+- (instancetype)initForPermission:(SInt8)aPermission atURL:(NSURL *)aURL
 {
 	return [self initForPermission:aPermission atPath:[aURL path]];
 }
@@ -105,7 +146,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
 	- initForPermission:AtPath:
  */
-- (id)initForPermission:(char)aPermission atPath:(NSString *)aPath
+- (instancetype)initForPermission:(SInt8)aPermission atPath:(NSString *)aPath
 {
 	OSErr			theError = !noErr;
 	FSRef			theFsRef,
@@ -133,7 +174,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 
 					FSCreateResFile( &theParentFsRef, theNameLength, theUnicodeName, 0, NULL, NULL, NULL );		// doesn't replace if already exists
 
-					theError =  ResError( );
+					theError = ResError( );
 
 					if( theError == noErr || theError == dupFNErr )
 					{
@@ -157,7 +198,9 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 
 	if( noErr != theError && theError != dupFNErr )
 	{
-		[self release];
+#ifndef __OBJC_GC__
+		[super dealloc];
+#endif
 		self = nil;
 	}
 
@@ -167,13 +210,13 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
 	- initForReadingAtPath:
  */
-- (id)initForReadingAtPath:(NSString *)aPath
+- (instancetype)initForReadingAtPath:(NSString *)aPath
 {
 	if( [[NSFileManager defaultManager] fileExistsAtPath:aPath] )
 		return [self initForPermission:fsRdPerm atURL:[NSURL fileURLWithPath:aPath]];
 	else
 	{
-		[self release];
+		[super dealloc];
 		return nil;
 	}
 }
@@ -181,7 +224,7 @@ BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSSt
 /*
 	- initForWritingAtPath:
  */
-- (id)initForWritingAtPath:(NSString *)aPath
+- (instancetype)initForWritingAtPath:(NSString *)aPath
 {
 	return [self initForPermission:fsWrPerm atURL:[NSURL fileURLWithPath:aPath]];
 }
@@ -501,7 +544,7 @@ static BOOL setAttributesFunction( Handle aResHandle, ResType aType, NSString * 
 /*
  * +resourceTypeEnumerator
  */
-+ (id)resourceTypeEnumerator
++ (instancetype)resourceTypeEnumerator
 {
 	return [[[self alloc] init] autorelease];
 }
@@ -509,7 +552,7 @@ static BOOL setAttributesFunction( Handle aResHandle, ResType aType, NSString * 
 /*
 	- init
  */
-- (id)init
+- (instancetype)init
 {
 	if( (self = [super init]) != nil )
 	{
@@ -543,7 +586,6 @@ static BOOL setAttributesFunction( Handle aResHandle, ResType aType, NSString * 
 	}
 
 	return theResTypeNumber;
-
 }
 
 @end
@@ -630,50 +672,6 @@ static BOOL setAttributesFunction( Handle aResHandle, ResType aType, NSString * 
 		[theResourceFork closeFile];
 		[theResourceFork release];
 	}
-	return theResult;
-}
-
-/*
- * dataFromResourceHandle()
- */
-NSData * dataFromResourceHandle( Handle aResourceHandle )
-{
-	NSData		* theData = nil;
-	if( aResourceHandle )
-	{
-		theData = [NSData dataWithBytes:*aResourceHandle length:GetHandleSize( aResourceHandle )];
-	}
-
-	return theData;
-}
-
-BOOL operateOnResourceUsingFunction( ResFileRefNum afileRef, ResType aType, NSString * aName, ResID anId, BOOL (*aFunction)(Handle,ResType,NSString*,ResID,void*), void * aContext )
-{
-	Handle			theResHandle = NULL;
-	ResFileRefNum	thePreviousRefNum;
-	Str255			thePName;
-	BOOL			theResult = NO;
-
-	thePreviousRefNum = CurResFile();	// save current resource
-
-	UseResFile( afileRef );    		// set this resource to be current
-
-	if( noErr ==  ResError( ) && ((aName && [aName getPascalString:(StringPtr)thePName length:sizeof(thePName)]) || !aName ))
-	{
-		if( aName && [aName getPascalString:(StringPtr)thePName length:sizeof(thePName)] )
-			theResHandle = Get1NamedResource( aType, thePName );
-		else if( !aName )
-			theResHandle = Get1Resource( aType, anId );			
-				
-		if( noErr == ResError() )
-				theResult = aFunction( theResHandle, aType, aName, anId, aContext  );
-
-		if ( theResHandle )
-			ReleaseResource( theResHandle );
-	}
-
-	UseResFile( thePreviousRefNum );     		// reset back to resource previously set
-
 	return theResult;
 }
 

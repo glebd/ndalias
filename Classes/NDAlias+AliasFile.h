@@ -1,8 +1,8 @@
 /*
 	NDAlias+AliasFile.h category
 
-	Created by Nathan Day on 05.12.01 under a MIT-style license. 
-	Copyright (c) 2008 Nathan Day
+	Created by Nathan Day on 05.12.01 under a MIT-style license.
+	Copyright (c) 2008-2012 Nathan Day
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@
 	@date Wed Dec 05 2001
  */
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import "NDAlias.h"
 #import "NDSDKCompatibility.h"
 
@@ -56,7 +56,7 @@
 	@param path the path to an alias file.
 	@result A <tt>NDAlias</tt> instance, returns <tt>nil</tt> if <tt>NDAlias</tt> creation fails.
  */
-+ (id)aliasWithContentsOfFile:(NSString *)path;
++ (instancetype)aliasWithContentsOfFile:(NSString *)path;
 	/*!
   @method aliasWithContentsOfURL:
 	@abstract Initalises a <tt>NDAlias</tt>.
@@ -64,7 +64,7 @@
 	@param URL the file url to the alias file.
 	@result A <tt>NDAlias</tt> instance, returns <tt>nil</tt> if <tt>NDAlias</tt> creation fails.
  */
-+ (id)aliasWithContentsOfURL:(NSURL *)URL;
++ (instancetype)aliasWithContentsOfURL:(NSURL *)URL;
 
 /*!
 	@method initWithContentsOfFile:
@@ -73,7 +73,7 @@
 	@param path the path to the alias file.
 	@result An initalises <tt>NDAlias</tt>, returns <tt>nil</tt> if initalises fails.
   */
-- (id)initWithContentsOfFile:(NSString *)path;
+- (instancetype)initWithContentsOfFile:(NSString *)path;
 /*!
 	@method initWithContentsOfURL:
 	@abstract Initalises a <tt>NDAlias</tt>.
@@ -81,7 +81,7 @@
 	@param URL the file url to the alias file.
 	@result An initalises <tt>NDAlias</tt>, returns <tt>nil</tt> if initalises fails.
  */
-- (id)initWithContentsOfURL:(NSURL *)URL;
+- (instancetype)initWithContentsOfURL:(NSURL *)URL;
 
 /*!
 	@functiongroup Create an alias file from an alias
@@ -115,7 +115,7 @@
 /*!
 	@method writeToURL:includeCustomIcon:
 	@abstract Writes an <tt>NDAlias</tt> to a Finder alias file.
-	@discussion The method <tt>writeToURL:</tt> writes the alias record data contained within the reciever to a Finder alias file at the file url <tt>URL</tt>. <tt>writeToFile:</tt> can be used to create alias files that the user can see in Finder and use.. If the target file of for the alias has a custom icon or is an application then the <tt><i>customIcon</i></tt> can be used to included a custom icon for the alias identical to the target.
+	@discussion The method <tt>writeToURL:</tt> writes the alias record data contained within the reciever to a Finder alias file at the file url <tt>URL</tt>. <tt>writeToFile:</tt> can be used to create alias files that the user can see in Finder and use. If the target file of for the alias has a custom icon or is an application then the <tt><i>customIcon</i></tt> can be used to included a custom icon for the alias identical to the target.
 	@param URL the file url for the alias file. Not the file url the alias record represents.
 	@param customIcon inlcude custom icon if required.
 	@result <#result#>

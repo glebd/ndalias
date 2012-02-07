@@ -2,7 +2,7 @@
 	NDAlias.m
 
 	Created by Nathan Day on 07.02.02 under a MIT-style license.
-	Copyright (c) 2008-2009 Nathan Day
+	Copyright (c) 2008-2012 Nathan Day
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -27,16 +27,34 @@
 #import "NSURL+NDCarbonUtilities.h"
 
 @interface NDAlias (Private)
-- (NSData *)dataForAliasHandle:(AliasHandle)anAliasHandle;
 - (NSData *)createAliasRecordDataForURL:(NSURL *)aURL fromURL:(NSURL *)aFromURL;
 @end
+
+/*
+	NDDataForAliasHandle: - attempt to create an NSData representation of an AliasHandle
+ */
+static NSData * NDDataForAliasHandle (AliasHandle anAliasHandle)
+{
+	NSData * aliasData = nil;
+	if (anAliasHandle && *anAliasHandle)
+	{
+		Size size = GetHandleSize((Handle) anAliasHandle);
+		if (size > 0)
+		{
+			aliasData = [NSData dataWithBytes:*anAliasHandle length:(NSUInteger)size];
+		}
+	}
+	
+	return aliasData;
+}
+
 
 @implementation NDAlias
 
 /*
 	aliasWithURL:
  */
-+ (id)aliasWithURL:(NSURL *)aURL
++ (instancetype)aliasWithURL:(NSURL *)aURL
 {
 	return [[[self alloc] initWithURL:aURL] autorelease];
 }
@@ -44,7 +62,7 @@
 /*
 	aliasWithURL:fromURL:
  */
-+ (id)aliasWithURL:(NSURL *)aURL fromURL:(NSURL *)aFromURL
++ (instancetype)aliasWithURL:(NSURL *)aURL fromURL:(NSURL *)aFromURL
 {
 	return [[[self alloc] initWithURL:aURL fromURL:aFromURL] autorelease];
 }
@@ -52,7 +70,7 @@
 /*
 	aliasWithPath:
  */
-+ (id)aliasWithPath:(NSString *)aPath
++ (instancetype)aliasWithPath:(NSString *)aPath
 {
 	return [[[self alloc] initWithPath:aPath] autorelease];
 }
@@ -60,7 +78,7 @@
 /*
 	aliasWithPath:fromPath:
  */
-+ (id)aliasWithPath:(NSString *)aPath fromPath:(NSString *)aFromPath
++ (instancetype)aliasWithPath:(NSString *)aPath fromPath:(NSString *)aFromPath
 {
 	return [[[self alloc] initWithPath:aPath fromPath:aFromPath] autorelease];
 }
@@ -68,7 +86,7 @@
 /*
 	aliasWithData:
  */
-+ (id)aliasWithData:(NSData *)aData
++ (instancetype)aliasWithData:(NSData *)aData
 {
 	return [[[self alloc] initWithData:aData] autorelease];
 }
@@ -76,7 +94,7 @@
 /*
 	aliasWithFSRef:
  */
-+ (id)aliasWithFSRef:(FSRef *)aFSRef
++ (instancetype)aliasWithFSRef:(FSRef *)aFSRef
 {
 	return [[[self alloc] initWithFSRef:aFSRef] autorelease];
 }
@@ -84,7 +102,7 @@
 /*
 	initWithPath:
  */
-- (id)initWithPath:(NSString *)aPath
+- (instancetype)initWithPath:(NSString *)aPath
 {
 	return [self initWithPath:aPath fromPath:nil];
 }
@@ -92,13 +110,19 @@
 /*
 	initWithPath:fromPath:
  */
-- (id)initWithPath:(NSString *)aPath fromPath:(NSString *)aFromPath
+- (instancetype)initWithPath:(NSString *)aPath fromPath:(NSString *)aFromPath
 {
-	if( aPath && [[NSFileManager defaultManager] fileExistsAtPath:aPath] )
+#if (MAC_OS_X_VERSION_MIN_REQUIRED >= 1050)
+	NSFileManager * fileManager = [[[NSFileManager alloc] init] autorelease];
+#else
+	NSFileManager * fileManager = [NSFileManager defaultManager];
+#endif
+	
+	if( aPath && [fileManager fileExistsAtPath:aPath] )
 	{
 		if( aFromPath )
 		{
-			if( [[NSFileManager defaultManager] fileExistsAtPath:aFromPath] )
+			if( [fileManager fileExistsAtPath:aFromPath] )
 			{
 				self = [self initWithURL:[NSURL fileURLWithPath:aPath] fromURL:[NSURL fileURLWithPath:aFromPath]];
 			}
@@ -125,7 +149,7 @@
 /*
 	initWithURL:
  */
-- (id)initWithURL:(NSURL *)aURL
+- (instancetype)initWithURL:(NSURL *)aURL
 {
 	return [self initWithURL:aURL fromURL:nil];
 }
@@ -133,7 +157,7 @@
 /*
 	initWithURL:fromURL:
  */
-- (id)initWithURL:(NSURL *)aURL fromURL:(NSURL *)aFromURL
+- (instancetype)initWithURL:(NSURL *)aURL fromURL:(NSURL *)aFromURL
 {
 	if( (self = [super init]) != nil )
 	{
@@ -142,7 +166,7 @@
 		{
 			aliasData = [self createAliasRecordDataForURL:aURL fromURL:aFromURL];
 		}
-
+		
 		if ( aliasData )
 		{
 			// Call the designated initializer
@@ -150,18 +174,20 @@
 		}
 		else
 		{
+#ifndef __OBJC_GC__
 			[super dealloc];
+#endif
 			self = nil;
 		}
 	}
-
+	
 	return self;
 }
 
 /*
 	initWithCoder:
  */
-- (id)initWithCoder:(NSCoder *)aDecoder
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
 	// Call the designated initializer
 	return [self initWithData:[aDecoder decodeDataObject]];
@@ -170,7 +196,7 @@
 /*
 	initWithData: - the designated initializer!
  */
-- (id)initWithData:(NSData *)aData
+- (instancetype)initWithData:(NSData *)aData
 {
 	if( (self = [super init]) != nil )
 	{
@@ -185,7 +211,9 @@
 		}
 		else
 		{
+#ifndef __OBJC_GC__
 			[super dealloc];
+#endif
 			self = nil;
 		}
 
@@ -199,15 +227,15 @@
 /*
 	initWithFSRef:
  */
-- (id)initWithFSRef:(FSRef *)aFSRef
+- (instancetype)initWithFSRef:(FSRef *)aFSRef
 {
 	NSData* aliasData = nil;
 
 	AliasHandle anAliasHandle = nil;
 	OSErr theError = FSNewAlias( NULL, aFSRef, &anAliasHandle );
-	if ( !theError && anAliasHandle )
+	if ( !theError )
 	{
-		aliasData = [self dataForAliasHandle:anAliasHandle];
+		aliasData = NDDataForAliasHandle (anAliasHandle);
 	}
 
 	if ( aliasData )
@@ -389,9 +417,16 @@
 - (BOOL)setPath:(NSString *)aPath fromPath:(NSString *)aFromPath
 {
 	BOOL		theSuccess = NO;
-	if( [[NSFileManager defaultManager] fileExistsAtPath:aPath] )
+	
+#if (MAC_OS_X_VERSION_MIN_REQUIRED >= 1050)
+	NSFileManager * fileManager = [[[NSFileManager alloc] init] autorelease];
+#else
+	NSFileManager * fileManager = [NSFileManager defaultManager];
+#endif
+	
+	if( [fileManager fileExistsAtPath:aPath] )
 	{
-		if( [[NSFileManager defaultManager] fileExistsAtPath:aFromPath] )
+		if( [fileManager fileExistsAtPath:aFromPath] )
 			theSuccess = [self setURL:[NSURL fileURLWithPath:aPath] fromURL:[NSURL fileURLWithPath:aFromPath]];
 		else
 			theSuccess = [self setURL:[NSURL fileURLWithPath:aPath] fromURL:nil];
@@ -413,11 +448,11 @@
  */
 - (NSString *)debugDescription
 {
-	NSString* str = [NSString stringWithFormat:@"aliasHandle %p, changed %d, mountFlags %x, lastKnownPath %@",
-					 aliasHandle,
-					 changed,
-					 mountFlags,
-					 [self lastKnownPath]];
+	NSString * str = [NSString stringWithFormat:@"aliasHandle %p, changed %d, mountFlags %x, lastKnownPath %@",
+					  aliasHandle,
+					  changed,
+					  mountFlags,
+					  [self lastKnownPath]];
 	
 	return str;
 }
@@ -427,11 +462,7 @@
  */
 - (NSData *)data
 {
-	NSData		* theData = nil;
-	if( aliasHandle != NULL )
-	{
-		theData = [self dataForAliasHandle:aliasHandle];
-	}
+	NSData * theData = NDDataForAliasHandle (aliasHandle);
 
 	return theData;
 }
@@ -441,7 +472,13 @@
  */
 - (NSString *)displayName
 {
-	return [[NSFileManager defaultManager] displayNameAtPath:[self path]];
+#if (MAC_OS_X_VERSION_MIN_REQUIRED >= 1050)
+	NSFileManager * fileManager = [[[NSFileManager alloc] init] autorelease];
+#else
+	NSFileManager * fileManager = [NSFileManager defaultManager];
+#endif
+	
+	return [fileManager displayNameAtPath:[self path]];
 }
 
 /*
@@ -548,14 +585,14 @@
 	{
 		FSRef		theFSRef1,
 					theFSRef2;
-
+		
 		if ( [self getFSRef:&theFSRef1] )
 		{
 			if ( [anOtherObject getFSRef:&theFSRef2] )
 				theEqual = (FSCompareFSRefs (&theFSRef1, &theFSRef2) == noErr);
 		}
 	}
-
+	
 	return theEqual;
 }
 
@@ -653,17 +690,6 @@
 @implementation NDAlias (Private)
 
 /*
-	dataForAliasHandle: - create an NSData representation of an AliasHandle
- */
-- (NSData *)dataForAliasHandle:(AliasHandle)anAliasHandle
-{
-	// TODO: consider switching from GetHandleSize() to GetAliasSize() ?
-	NSData* aliasData = [NSData dataWithBytes:*anAliasHandle length:GetHandleSize((Handle) anAliasHandle)];
-
-	return aliasData;
-}
-
-/*
 	createAliasRecordDataForURL:fromURL:
  */
 - (NSData *)createAliasRecordDataForURL:(NSURL *)aURL fromURL:(NSURL *)aFromURL
@@ -682,9 +708,9 @@
 	}
 
 	NSData* aliasData = nil;
-	if ( !theError && anAliasHandle )
+	if ( !theError )
 	{
-		aliasData = [self dataForAliasHandle:anAliasHandle];
+		aliasData = NDDataForAliasHandle(anAliasHandle);
 	}
 
 	return aliasData;

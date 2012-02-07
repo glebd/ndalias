@@ -1,8 +1,8 @@
 /*
 	NDAlias+AliasFile.m category
 
-	Created by Nathan Day on 05.12.01 under a MIT-style license. 
-	Copyright (c) 2008-2010 Nathan Day
+	Created by Nathan Day on 05.12.01 under a MIT-style license.
+	Copyright (c) 2008-2012 Nathan Day
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -28,121 +28,13 @@
 #import "NSURL+NDCarbonUtilities.h"
 #import "NDResourceFork+OtherSorces.h"
 
-//const ResType	aliasResourceType = 'alis';
-const OSType	finderCreatorCode = 0x4D414353; // 'MACS'
-const short		aliasRecordId = 0;
-//					customIconID = -16496;
+static const ResType	aliasResourceType = 0x616C6973; // 'alis'
+static const OSType		finderCreatorCode = 0x4D414353; // 'MACS'
+static const short		aliasRecordId = 0;
 
 @implementation NDAlias (AliasFile)
 
-OSType aliasOSTypeFor( NSURL * aURL );
-
-+ (id)aliasWithContentsOfFile:(NSString *)aPath
-{
-	return [[[self alloc] initWithContentsOfFile:aPath] autorelease];
-}
-
-+ (id)aliasWithContentsOfURL:(NSURL *)aURL
-{
-	return [[[self alloc] initWithContentsOfURL:aURL] autorelease];
-}
-
-- (id)initWithContentsOfFile:(NSString *)aPath
-{
-	NDResourceFork		* theResourceFork;
-	theResourceFork = [[NDResourceFork alloc] initForReadingAtPath:aPath];
-
-	self = [self initWithData:[theResourceFork dataForType:formAlias Id:aliasRecordId]];
-
-	[theResourceFork closeFile];
-	[theResourceFork release];
-
-	return self;
-}
-
-- (id)initWithContentsOfURL:(NSURL *)aURL
-{
-	NDResourceFork		* theResourceFork;
-	theResourceFork = [[NDResourceFork alloc] initForReadingAtURL:aURL];
-
-	self = [self initWithData:[theResourceFork dataForType:formAlias Id:aliasRecordId]];
-
-	[theResourceFork closeFile];
-	[theResourceFork release];
-
-	return self;
-}
-
-- (BOOL)writeToFile:(NSString *)aPath
-{
-	return [self writeToURL:[NSURL fileURLWithPath:aPath] includeCustomIcon:YES];
-}
-
-- (BOOL)writeToFile:(NSString *)aPath includeCustomIcon:(BOOL)aCustomIcon
-{
-	return [self writeToURL:[NSURL fileURLWithPath:aPath] includeCustomIcon:aCustomIcon];
-}
-
-- (BOOL)writeToURL:(NSURL *)aURL
-{
-	return [self writeToURL:(NSURL *)aURL includeCustomIcon:YES];
-}
-
-- (BOOL)writeToURL:(NSURL *)aURL includeCustomIcon:(BOOL)aCustomIcon
-{
-	BOOL				theSuccess;
-	NDResourceFork		* theResourceFork;
-	
-	theResourceFork = [[NDResourceFork alloc] initForWritingAtURL:aURL];
-	theSuccess = [theResourceFork addData:[self data] type:formAlias Id:aliasRecordId name:@"created by NDAlias"];
-
-	if( theSuccess )
-	{
-		UInt16		theFlags;
-		OSType		theAliasType,
-						theAliasCreator,
-						theTargetType,
-						theTargetCreator;
-		NSURL			* theTargetURL;
-
-		theTargetURL = [self URL];
-
-		[[self URL] finderInfoFlags:&theFlags type:&theTargetType creator:&theTargetCreator];
-
-		theAliasType = aliasOSTypeFor( theTargetURL );	// get the alias type
-
-		if( theAliasType == 0 )	// 0 alias type means doc which just takes the targets type
-		{
-			theAliasCreator = theTargetCreator;
-			theAliasType = theTargetType;
-		}
-		else	// special alias types take the finder creator code
-		{
-			theAliasCreator = finderCreatorCode;
-		}
-
-		// item with custom icon as well as apps need to have a custoime icon for the alias
-		if( aCustomIcon && ((theAliasType == 0 ) || (theFlags & kHasCustomIcon) || (theAliasType == kAppPackageAliasType) || (theAliasType == kApplicationAliasType)) )
-		{
-			NSData		* theIconFamilyData;
-			
-			theIconFamilyData = [NDResourceFork iconFamilyDataForURL:theTargetURL];
-			
-			if( [theResourceFork addData:theIconFamilyData type:kIconFamilyType Id:kCustomIconResource name:@""] )
-				[aURL setFinderInfoFlags:kIsAlias | kHasCustomIcon mask:kIsAlias | kHasCustomIcon type:theAliasType creator:theAliasCreator];
-		}
-		else
-		{
-			[aURL setFinderInfoFlags:kIsAlias mask:kIsAlias | kHasCustomIcon type:theAliasType creator:theAliasCreator];
-		}
-	}
-
-	[theResourceFork closeFile];
-	[theResourceFork release];
-	return theSuccess;
-}
-
-OSType aliasOSTypeFor( NSURL * aURL )
+static OSType aliasOSTypeFor( NSURL * aURL )
 {
 	LSItemInfoRecord	theItemInfo;
 	OSType				theType = kContainerFolderAliasType;
@@ -178,5 +70,110 @@ OSType aliasOSTypeFor( NSURL * aURL )
 	return theType;
 }
 
-@end
++ (instancetype)aliasWithContentsOfFile:(NSString *)aPath
+{
+	return [[(NDAlias*)[self alloc] initWithContentsOfFile:aPath] autorelease];
+}
 
++ (instancetype)aliasWithContentsOfURL:(NSURL *)aURL
+{
+	return [[(NDAlias*)[self alloc] initWithContentsOfURL:aURL] autorelease];
+}
+
+- (instancetype)initWithContentsOfFile:(NSString *)aPath
+{
+	NDResourceFork		* theResourceFork;
+	theResourceFork = [[NDResourceFork alloc] initForReadingAtPath:aPath];
+
+	self = [self initWithData:[theResourceFork dataForType:aliasResourceType Id:aliasRecordId]];
+
+	[theResourceFork closeFile];
+	[theResourceFork release];
+
+	return self;
+}
+
+- (instancetype)initWithContentsOfURL:(NSURL *)aURL
+{
+	NDResourceFork		* theResourceFork;
+	theResourceFork = [[NDResourceFork alloc] initForReadingAtURL:aURL];
+
+	self = [self initWithData:[theResourceFork dataForType:aliasResourceType Id:aliasRecordId]];
+
+	[theResourceFork closeFile];
+	[theResourceFork release];
+
+	return self;
+}
+
+- (BOOL)writeToFile:(NSString *)aPath
+{
+	return [self writeToURL:[NSURL fileURLWithPath:aPath] includeCustomIcon:YES];
+}
+
+- (BOOL)writeToFile:(NSString *)aPath includeCustomIcon:(BOOL)aCustomIcon
+{
+	return [self writeToURL:[NSURL fileURLWithPath:aPath] includeCustomIcon:aCustomIcon];
+}
+
+- (BOOL)writeToURL:(NSURL *)aURL
+{
+	return [self writeToURL:(NSURL *)aURL includeCustomIcon:YES];
+}
+
+- (BOOL)writeToURL:(NSURL *)aURL includeCustomIcon:(BOOL)aCustomIcon
+{
+	BOOL				theSuccess;
+	NDResourceFork		* theResourceFork;
+	
+	theResourceFork = [[NDResourceFork alloc] initForWritingAtURL:aURL];
+	theSuccess = [theResourceFork addData:[self data] type:aliasResourceType Id:aliasRecordId name:@"created by NDAlias"];
+
+	if( theSuccess )
+	{
+		UInt16		theFlags;
+		OSType		theAliasType,
+						theAliasCreator,
+						theTargetType,
+						theTargetCreator;
+		NSURL			* theTargetURL;
+
+		theTargetURL = [self URL];
+
+		[[self URL] finderInfoFlags:&theFlags type:&theTargetType creator:&theTargetCreator];
+
+		theAliasType = aliasOSTypeFor( theTargetURL );	// get the alias type
+
+		if( theAliasType == 0 )	// 0 alias type means doc which just takes the target's type
+		{
+			theAliasCreator = theTargetCreator;
+			theAliasType = theTargetType;
+		}
+		else	// special alias types take the finder creator code
+		{
+			theAliasCreator = finderCreatorCode;
+		}
+
+		// item with custom icon as well as apps need to have a custom icon for the alias
+		if( aCustomIcon && ((theAliasType == 0 ) || (theFlags & kHasCustomIcon) || (theAliasType == kAppPackageAliasType) || (theAliasType == kApplicationAliasType)) )
+		{
+			NSData		* theIconFamilyData;
+			
+			theIconFamilyData = [NDResourceFork iconFamilyDataForURL:theTargetURL];
+			
+			if( [theResourceFork addData:theIconFamilyData type:kIconFamilyType Id:kCustomIconResource name:@""] )
+				[aURL setFinderInfoFlags:kIsAlias | kHasCustomIcon mask:kIsAlias | kHasCustomIcon type:theAliasType creator:theAliasCreator];
+		}
+		else
+		{
+			[aURL setFinderInfoFlags:kIsAlias mask:kIsAlias | kHasCustomIcon type:theAliasType creator:theAliasCreator];
+		}
+	}
+
+	[theResourceFork closeFile];
+	[theResourceFork release];
+	
+	return theSuccess;
+}
+
+@end

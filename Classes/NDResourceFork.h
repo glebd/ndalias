@@ -1,8 +1,8 @@
 /*
 	NDResourceFork.h category
 
-	Created by Nathan Day on 05.12.01 under a MIT-style license. 
-	Copyright (c) 2008 Nathan Day
+	Created by Nathan Day on 05.12.01 under a MIT-style license.
+	Copyright (c) 2008-2012 Nathan Day
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <Carbon/Carbon.h>
+#import <CoreServices/CoreServices.h>
 #import "NDSDKCompatibility.h"
 
 /*!
@@ -49,68 +49,68 @@
 /*!
 @method resourceForkForReadingAtURL:
 	@abstract Creates and initalises a <tt>NDResourceFork</tt>.
-	@discussion Creates and intializes a <tt>NDResourceFork</tt> and opens a resource fork for reading using the file url.. The <tt>NDResourceFork</tt> resource fork is closed when the receiver is deallocated.
+	@discussion Creates and intializes a <tt>NDResourceFork</tt> and opens a resource fork for reading using the file url. You must invoke closeFile when you are finished with the object.
 	@param URL A file url specifying the name and location of the file whose resource fork is to be opened.
 	@result A <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or Create and initalise failed.
  */
-+ (id)resourceForkForReadingAtURL:(NSURL *)URL;
++ (instancetype)resourceForkForReadingAtURL:(NSURL *)URL;
 /*!
 	@method resourceForkForWritingAtURL:
 	@abstract Creates and initalises a <tt>NDResourceFork</tt>.
-	@discussion Creates and intializes a <tt>NDResourceFork</tt> and opens a resource fork for writting, creating it before hand if it does not already exists, using the file url. The <tt>NDResourceFork</tt> resource fork is closed when the receiver is deallocated.
+	@discussion Creates and intializes a <tt>NDResourceFork</tt> and opens a resource fork for writting, creating it before hand if it does not already exists, using the file url. You must invoke closeFile when you are finished with the object.
 	@param URL A file url specifying the name and location of the file whose resource fork is to be opened.
 	@result A <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or Create and initalise failed.
  */
-+ (id)resourceForkForWritingAtURL:(NSURL *)URL;
++ (instancetype)resourceForkForWritingAtURL:(NSURL *)URL;
 /*!
 	@method resourceForkForReadingAtPath:
 	@abstract Creates and initalises a <tt>NDResourceFork</tt>.
-	@discussion Creates and intializes a <tt>NDResourceFork</tt> and opens a resource fork for reading using the path. The receivers resource fork is closed when the receiver is deallocated.
+	@discussion Creates and intializes a <tt>NDResourceFork</tt> and opens a resource fork for reading using the path. You must invoke closeFile when you are finished with the object.
 	@param path A path specifying the name and location of the file whose resource fork is to be opened.
 	@result A <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or Create and initalise failed.
  */
-+ (id)resourceForkForReadingAtPath:(NSString *)path;
++ (instancetype)resourceForkForReadingAtPath:(NSString *)path;
 /*!
 	@method resourceForkForWritingAtPath:
 	@abstract Creates and initalises a <tt>NDResourceFork</tt>.
-	@discussion Creates and intializes a <tt>NDResourceFork</tt>r and opens a resource fork for writting, creating it before hand if it does not already exists, using the path. The receivers resource fork is closed when the receiver is deallocated.
+	@discussion Creates and intializes a <tt>NDResourceFork</tt>r and opens a resource fork for writting, creating it before hand if it does not already exists, using the path. You must invoke closeFile when you are finished with the object.
 	@param path A path specifying the name and location of the file whose resource fork is to be opened.
 	@result A <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or Create and initalise failed.
  */
-+ (id)resourceForkForWritingAtPath:(NSString *)path;
++ (instancetype)resourceForkForWritingAtPath:(NSString *)path;
 
 /*!
 	@method initForReadingAtURL:
 	@abstract Initalises a <tt>NDResourceFork</tt>.
 	@discussion Intializes the receiver and opens a resource fork for reading using the file url.
-	@param URL A file url specifying the name and location of the file whose resource fork is to be opened. The receivers resource fork is closed when the receiver is deallocated.
+	@param URL A file url specifying the name and location of the file whose resource fork is to be opened. You must invoke closeFile when you are finished with the object.
 	@result An initialized <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or initalization failed.
   */
-- (id)initForReadingAtURL:(NSURL *)URL;
+- (instancetype)initForReadingAtURL:(NSURL *)URL;
 /*!
 	@method initForReadingAtURL:
 	@abstract Initalises a <tt>NDResourceFork</tt>.
-	@discussion Intializes the receiver and opens a resource fork for writting, creating it before hand if it does not already exists, using the file url. The receivers resource fork is closed when the receiver is deallocated.
+	@discussion Intializes the receiver and opens a resource fork for writting, creating it before hand if it does not already exists, using the file url. You must invoke closeFile when you are finished with the object.
 	@param URL A file url specifying the name and location of the file whose resource fork is to be opened.
 	@result An initialized <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or initalization failed.
  */
-- (id)initForWritingAtURL:(NSURL *)URL;
+- (instancetype)initForWritingAtURL:(NSURL *)URL;
 /*!
 	@method initForReadingAtPath:
 	@abstract Initalises a <tt>NDResourceFork</tt>.
-	@discussion Intializes the receiver and opens a resource fork for reading using the path. The receivers resource fork is closed when the receiver is deallocated.
+	@discussion Intializes the receiver and opens a resource fork for reading using the path. You must invoke closeFile when you are finished with the object.
 	@param path A path specifying the name and location of the file whose resource fork is to be opened.
 	@result An initialized <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or initalization failed.
  */
-- (id)initForReadingAtPath:(NSString *)path;
+- (instancetype)initForReadingAtPath:(NSString *)path;
 /*!
 	@method initForWritingAtPath:
 	@abstract Initalises a <tt>NDResourceFork</tt>.
-	@discussion Intializes the receiver and opens a resource fork for writting, creating it before hand if it does not already exists, using the path. The receivers resource fork is closed when the receiver is deallocated.
+	@discussion Intializes the receiver and opens a resource fork for writting, creating it before hand if it does not already exists, using the path. You must invoke closeFile when you are finished with the object.
 	@param path A path specifying the name and location of the file whose resource fork is to be opened.
 	@result An initialized <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or initalization failed.
  */
-- (id)initForWritingAtPath:(NSString *)path;
+- (instancetype)initForWritingAtPath:(NSString *)path;
 /*!
 	@method closeFile
 	@abstract
@@ -122,7 +122,7 @@
 /*!
 	@method initForPermission:atURL:
 	@abstract Initalises a <tt>NDResourceFork</tt>.
-	@discussion Intializes the receiver and opens a resource fork for reading and/or writting using the file url. If write permission is specified, then an empty resource fork created before hand if it does not already exists.  The receivers resource fork is closed when the receiver is deallocated.Possible permission values are as follows;
+	@discussion Intializes the receiver and opens a resource fork for reading and/or writting using the file url. If write permission is specified, then an empty resource fork created before hand if it does not already exists.  You must invoke closeFile when you are finished with the object.Possible permission values are as follows;
 	<blockquote>
 		<table border=0 cellpadding=4>
 			<tr><td width=80 valign=top><tt>fsCurPerm</tt></td>
@@ -145,11 +145,11 @@
 	@param URL A file url specifying the name and location of the file whose resource fork is to be opened.
 	@result An initialized <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or initalization failed.
  */
-- (id)initForPermission:(char)permission atURL:(NSURL *)URL;
+- (instancetype)initForPermission:(SInt8)permission atURL:(NSURL *)URL;
 /*!
 	@method initForPermission:atPath:
 	@abstract Initalises a <tt>NDResourceFork</tt>.
-	@discussion Intializes the receiver and opens a resource fork for reading and/or writting using the path. If write permission is specified, then an empty resource fork created before hand if it does not already exists. The receivers resource fork is closed when the receiver is deallocated. Possible permission values are as follows;
+	@discussion Intializes the receiver and opens a resource fork for reading and/or writting using the path. If write permission is specified, then an empty resource fork created before hand if it does not already exists. You must invoke closeFile when you are finished with the object. Possible permission values are as follows;
 	<blockquote>
 		<table border=0 cellpadding=4>
 			<tr><td width=80 valign=top><tt>fsCurPerm</tt></td>
@@ -172,13 +172,13 @@
 	@param path A path specifying the name and location of the file whose resource fork is to be opened.
 	@result An initialized <tt>NDResourceFork</tt> for an opened resource fork, returns <tt>nil</tt> if the resource fork could not be opened or initalization failed.
  */
-- (id)initForPermission:(char)permission atPath:(NSString *)path;
+- (instancetype)initForPermission:(SInt8)permission atPath:(NSString *)path;
 
 /*!
 	@method addData:type:Id:name:
-	@abstract Adds a resource to the receivers resource file.
+	@abstract Adds a resource to the receiver's resource file.
 	@discussion <tt>addData:type:name:</tt> doesn't verify whether the resource ID you pass in the parameter <tt><i>ID</i></tt> is already assigned to another resource of the same type. You should use the methods <tt>addData:type:name:</tt> or <tt>dataForType:named:</tt> to get a unique resource ID when adding a resource . <tt>addData:type:Id:named:</tt> returns <tt>YES</tt> on success
-	@param data An <tt>NSData</tt> object containing the data to be added as a resource to the receivers resource file. 
+	@param data An <tt>NSData</tt> object containing the data to be added as a resource to the receiver's resource file. 
 	@param type The resource type of the resource to be added.
 	@param ID The resource ID of the resource to be added.
 	@param name The name of the resource to be added. 
@@ -187,9 +187,9 @@
 - (BOOL)addData:(NSData *)data type:(ResType)type Id:(ResID)ID name:(NSString *)name;
 /*!
 	@method addData:type:name:
-	@abstract Adds a resource to the receivers resource file.
+	@abstract Adds a resource to the receiver's resource file.
 	@discussion <tt>addData:type:name:</tt> uses an unique resource ID when adding a resource . <tt>addData:type:Id:named:</tt> returns <tt>YES</tt> on success
-	@param data An <tt>NSData</tt> object containing the data to be added as a resource to the receivers resource file.
+	@param data An <tt>NSData</tt> object containing the data to be added as a resource to the receiver's resource file.
 	@param type The resource type of the resource to be added.
 	@param name The name of the resource to be added.
 	@result Returns <tt>YES</tt> if the resource was successfully added, otherwise it returns <tt>NO</tt>.
@@ -197,8 +197,8 @@
 - (BOOL)addData:(NSData *)data type:(ResType)type name:(NSString *)name;
 /*!
 	@method dataForType:Id:
-	@abstract Gets resource data for a resource in the receivers resource file.
-	@discussion <tt>dataForType:Id:</tt> searches the receivers resource file's resource map in memory for the specified resource.
+	@abstract Gets resource data for a resource in the receiver's resource file.
+	@discussion <tt>dataForType:Id:</tt> searches the receiver's resource file's resource map in memory for the specified resource.
 	@param type The resource type of the resource which you wish to retrieve data.
 	@param ID An integer that uniquely identifies the resource which you wish to retrieve data.
 	@result Returns an <tt>NSData</tt> object if successful otherwise returns nil.
@@ -206,8 +206,8 @@
 - (NSData *)dataForType:(ResType)type Id:(ResID)ID;
 /*!
 	@method dataForType:named:
-	@abstract Gets resource data for a resource in the receivers resource file.
-	@discussion <tt>dataForType:Id:</tt> searches the receivers resource file's resource map in memory for the specified resource.
+	@abstract Gets resource data for a resource in the receiver's resource file.
+	@discussion <tt>dataForType:Id:</tt> searches the receiver's resource file's resource map in memory for the specified resource.
 	@param type The resource type of the resource which you wish to retrieve data.
 	@param name A name that uniquely identifies the resource which you wish to retrieve data. Strings passed in this parameter are case-sensitive.
 	@result Returns an <tt>NSData</tt> object if successful otherwise returns nil.
@@ -216,21 +216,13 @@
 
 /*!
 	@method removeType:Id:
-	@abstract Removes a resource's entry from the receivers resource file.
+	@abstract Removes a resource's entry from the receiver's resource file.
 	@discussion If the <tt>resProtected</tt> attribute for the resource is set, <tt>removeType:Id:</tt> does nothing, and returns <tt>NO</tt>.
 	@param type The resource type of the resource which you wish to remove.
 	@param ID An integer that uniquely identifies the resource which you wish to remove.
 	@result Returns <tt>YES</tt> if the resource was successfully removed, otherwise if returns <tt>NO</tt>.
   */
 - (BOOL)removeType:(ResType)type Id:(ResID)ID;
-
-/*!
-	@method everyResourceType
-	@abstract Gets every resource type available in the receivers resource file.
-	@discussion <tt>everyResourceType</tt> returns an <tt>NSArray</tt> of <tt>NSNumber</tt>s each containing a <tt>unsigned long</tt>  or <tt>ResType</tt>s.
-	@result A <tt>NSArray</tt> of <tt>NSNumber</tt>s containing <tt>ResType</tt>s.
-  */
-- (NSArray *)everyResourceType;
 
 /*!
 	@method nameOfResourceType:Id:
@@ -282,21 +274,21 @@
 - (NSEnumerator *)resourceTypeEnumerator;
 /*!
 	@method everyResourceType
-	@abstract Gets every resource type available in the receivers resource file.
+	@abstract Gets every resource type available in the receiver's resource file.
 	@discussion <tt>everyResourceType</tt> returns an <tt>NSArray</tt> of <tt>NSNumber</tt>s each containing a <tt>unsigned long</tt>  or <tt>ResType</tt>s.
 	@result A <tt>NSArray</tt> of <tt>NSNumber</tt>s containing <tt>ResType</tt>s.
   */
 - (NSArray *)everyResourceType;
 /*!
 	@method dataForEntireResourceFork
-	@abstract Reads the receivers entire resource data.
+	@abstract Reads the receiver's entire resource data.
 	@discussion <tt>dataForEntireResourceFork</tt> returns a <tt>NSData</tt> object that contains the entire contents of the resource fork. <tt>dataForEntireResourceFork</tt> and it's conpanion method <tt>writeEntireResourceFork</tt> can be used for duplicating the resource fork for on file to the resource fork of another. <tt>dataForEntireResourceFork</tt> can also be used to convert a resource stored in a files resource fork into a resource stored in a data fork, simple by using the <tt>NSData</tt> methods <tt>writeToFile:atomically:</tt> or <tt>writeToURL:atomically:</tt>.
 	@result A <tt>NSData</tt> object containing the resources data.
   */
 - (NSData *)dataForEntireResourceFork;
 /*!
 	@method writeEntireResourceFork:
-	@abstract Writes complete resource data to the receivers resource fork.
+	@abstract Writes complete resource data to the receiver's resource fork.
 	@discussion <tt>writeEntireResourceFork:</tt> writes the data in the <tt>NSData</tt> object out the the recievers resource fork. <tt>writeEntireResourceFork</tt> and it's conpanion method <tt>dataForEntireResourceFork</tt> can be used for duplicating the resource fork for on file to the resource fork of another. <tt>writeEntireResourceFork:</tt> can also be used to convert a resource stored in a files data fork into a resource stored in a files resource fork, simple by creating the <tt>NSData</tt> object with the methods <tt>dataWithContentsOfFile</tt> or <tt>dataWithContentsOfURL:</tt>.
 	@param data The complete resource data in a <tt>NSData</tt> object. 
 	@result Returns <tt>YES</tt> if writting was successful, returns <tt>NO</tt> otherwise.

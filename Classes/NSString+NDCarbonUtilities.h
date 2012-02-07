@@ -1,8 +1,8 @@
 /*
 	NSString+NDCarbonUtilities.h
 
-	Created by Nathan Day on 03.08.02 under a MIT-style license. 
-	Copyright (c) 2008-2010 Nathan Day
+	Created by Nathan Day on 03.08.02 under a MIT-style license.
+	Copyright (c) 2008-2011 Nathan Day
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@
 	@author Nathan Day
  */
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import <CoreServices/CoreServices.h>
 #import "NDSDKCompatibility.h"
 
@@ -85,7 +85,7 @@
 /*!
 	@method resolveAliasFile
 	@abstract Resolve an alias file.
-	@discussion If the receiver does not refer to an alias file, the receiver itself is returned.  If the receiver does refer to an alias file, alias resolution is attepted.  If successful, a POSIX path <tt>NSString</tt> of the original is returned, else nil is returned.
+	@discussion If the receiver does not refer to an alias file, the receiver itself is returned.  If the receiver does refer to an alias file, alias resolution is attempted.  If successful, a POSIX path <tt>NSString</tt> of the original is returned, else nil is returned.
 	@result An POSIX path <tt>NSString</tt>.
   */
 - (NSString *)resolveAliasFile;
